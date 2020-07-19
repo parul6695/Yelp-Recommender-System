@@ -8,20 +8,16 @@ import sys
 import itertools
 import math
 import csv
-#import string
-#from __future__ import print_function
 import string
 
 con = SparkConf().setAll([('spark.executor.memory', '8g'), ('master','local'),('appName','task1'),('spark.driver.memory','8g')])
 sc = SparkContext(conf=con)
 # variables
-
 if len(sys.argv) != 4:
     print("Usage is incorrect")
     exit(-1)
 else:
     input_file_path = sys.argv[1]
-    #input_file_path = "train_review_task2.json"
     output_file_path = sys.argv[2]
     stopwords_file = sys.argv[3]
 '''
@@ -76,17 +72,14 @@ def stringer2(swords):
     resultwords = [word for word in swords if word not in words_lowcount]
     return resultwords
 bp = bp1.mapValues(stringer2).persist()
-
 docs = bp.map(lambda x: x[0]).collect()
-#print("==========================docs created")
+
 total_docs = len(docs)
 
-# Part b) Calculate TF-IDF for each business
 def idfCal(ni):
     return math.log2(total_docs / ni)
 
 def mapWordsToNums(d):
-    #print("\n========== mapWordsToNum:")
     word_mapper = dict()
     counter = 0
     for key in d:
@@ -100,7 +93,6 @@ tf = bp.map(lambda x: (x[0], top200words(x[1], idf))).map(
     lambda x: (x[0], [word_mapper[x] for x in x[1]])).collectAsMap()
 del idf
 # Part e) User Profile
-
 def findUnion(listOfDicts):
     return list(set.union(*listOfDicts))
 
